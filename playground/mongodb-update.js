@@ -10,17 +10,17 @@ MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
     console.log('Connected to MongoDB server')
     const db = client.db('TodoApp')
 
-    // db.collection('Todos').findOneAndUpdate({
-    //     _id : ObjectID("5b9a5914b332e422131354ca"),
-    // }, {
-    //     $set: {
-    //         completed: true
-    //     }
-    // }, {
-    //     returnOriginal: false
-    // }).then((result) => {
-    //     console.log(result)
-    // })
+    db.collection('Todos').findOneAndUpdate({
+        _id : ObjectID("5b9a5914b332e422131354ca"),
+    }, {
+        $set: {
+            completed: true
+        }
+    }, {
+        returnOriginal: false
+    }).then((result) => {
+        console.log(result)
+    })
 
     db.collection('Users').findOneAndUpdate({
         _id: ObjectID("5b9a56599acfd362fc9c09ae")
