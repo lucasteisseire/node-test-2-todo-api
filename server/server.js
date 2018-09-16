@@ -37,8 +37,7 @@ app.get('/todos', (req, res) => {
     }, (e) => {
         res.status(400).send(e)
     })
-})
-
+});
 app.get(`/todos/:id`, (req, res) => {
     var id = req.params.id
     if(!ObjectID.isValid(`${id}`)) {
@@ -54,8 +53,7 @@ app.get(`/todos/:id`, (req, res) => {
     }).catch((e) => {
         res.status(400).send()
     })
-})
-
+});
 app.delete('/todos/:id', (req, res) => {
     var id = req.params.id
     if(!ObjectID.isValid(`${id}`)) {
