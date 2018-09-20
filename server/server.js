@@ -145,7 +145,6 @@ app.post('/users/login', (req, res) => {
 
     ////////////// METHODE FACTORISE /////////////
     User.findByCredentials(body.email, body.password).then((user)=> {
-        console.log(user)
         return user.generateAuthToken().then((token) => {
             res.header('x-auth', token).send(user)
         })

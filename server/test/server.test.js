@@ -265,23 +265,32 @@ describe('POST /users/login', () => {
         })
         
     })
-    it('should log you', (done) => {
-        var email = users[0].email
-        var password = 'userpass'
+
+    it('should log you and return auth token', (done) => {
+        var email = users[1].email
+        var password = users[1].password
         request(app)
         .post('/users/login')
-        .send(({email, password}))
+        .send({
+            email, 
+            password
+        })
         .expect(200)
-        .end((err) => {
-            console.log(err)
+        .expect((res) => {
+            expect(res.header['x-auth']).toBeTruthy()
         })
-        User.findOne({email}).then((user) => {
-            expect(user.email && user.password).toBeTruthy()
+        .end((err, res) => {
+            if(err) { 
+                return done(err)
+            }        
 
-         return bcrypt.compare(password, user.password)
-        }).then((passwordTrueOrFalse) => {
-           expect(passwordTrueOrFalse).toBeTruthy()
-           done()
-        })
-    })
+        User.findOne({email}).then((user) => {
+            expect(user.tokens[0]).toMatchObject({
+                access: 'auth',
+                token: res.headers['x-auth'],
+            })
+            done();
+        }).catch((e) => done(e))
+    });
 })
+});
