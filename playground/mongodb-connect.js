@@ -23,16 +23,15 @@ MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
     //     console.log(JSON.stringify(result.ops, undefined, 2))
     // })
 
-    // db.collection('Users').insertOne({
-    //     name: 'lucas',
-    //     age: 29,
-    //     location: 'Paris'
-    // }, (err, result) => {
-    //     if(err) {
-    //         return console.log('unable to connect to users', err)
-    //     }
-    //     console.log(result.ops[0]._id.getTimestamp());
-
-    // })
+    db.collection('Users').insertOne({
+        name: 'lucas',
+        age: 29,
+        location: 'Paris',
+    }, (err, result) => {
+        if(err) {
+            return console.log('unable to connect to users', err)
+        }
+        console.log(result.ops[0]._id.getTimestamp());
+     })
     client.close();
 });

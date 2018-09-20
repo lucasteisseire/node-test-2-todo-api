@@ -1,6 +1,7 @@
 const expect = require('expect');
 const request = require('supertest');
 const {ObjectID} = require('mongodb')
+const bcrypt = require('bcryptjs')
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
@@ -241,4 +242,46 @@ describe('POST /users', () => {
         .end(done)        
      });
     
+})
+
+describe('POST /users/login', () => {
+    it('Should return invalid password', (done) => {
+        var email = users[0].email
+        var password = 'invalid password'
+        request(app)
+        .post('/users/login')
+        .send(({email, password}))
+        .expect(400)
+        .end((err) => {
+            console.log(err)
+        })
+        User.findOne({email}).then((user) => {
+            expect(user.email && user.password).toBeTruthy()
+
+         return bcrypt.compare(password, user.password)
+        }).then((passwordTrueOrFalse) => {
+           expect(passwordTrueOrFalse).toBeFalsy()
+           done()
+        })
+        
+    })
+    it('should log you', (done) => {
+        var email = users[0].email
+        var password = 'userpass'
+        request(app)
+        .post('/users/login')
+        .send(({email, password}))
+        .expect(200)
+        .end((err) => {
+            console.log(err)
+        })
+        User.findOne({email}).then((user) => {
+            expect(user.email && user.password).toBeTruthy()
+
+         return bcrypt.compare(password, user.password)
+        }).then((passwordTrueOrFalse) => {
+           expect(passwordTrueOrFalse).toBeTruthy()
+           done()
+        })
+    })
 })

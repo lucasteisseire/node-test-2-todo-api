@@ -2,18 +2,22 @@ require('./config/config');
 
 const _ = require('lodash');
 const express = require('express');
+const os = require('os')
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+const bcrypt = require('bcryptjs')
 
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
-var {authenticate} = require('./middleware/authenticate')
+var {authenticate} = require('./middleware/authenticate');
 
+// console.log('WHAT', os.platform())
 
 var app = express();
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT 
+
 
 app.use(bodyParser.json());
 
@@ -25,18 +29,18 @@ app.post('/todos', (req, res) => {
         res.send(doc)
     }, (e) => {
         res.status(400).send(e)
-    })
-})
+    });
+});
 
 app.get('/todos', (req, res) => {
     Todo.find().then((todos) => {
         res.send({
             todos
 
-        })
+        });
     }, (e) => {
         res.status(400).send(e)
-    })
+    });
 });
 app.get(`/todos/:id`, (req, res) => {
     var id = req.params.id
@@ -92,10 +96,8 @@ app.patch('/todos/:id', (req, res) => {
         res.send({todo})
     }).catch((e) => {
         res.status(400).send()
-    })
-
-})
-
+    });
+});
 
 app.post('/users', (req, res) => {
     var body = _.pick(req.body, ['email', 'password'])
@@ -108,16 +110,72 @@ app.post('/users', (req, res) => {
     }).catch((e) => {
         res.status(400).send(e);
     })
-})
-
+});
 
 app.get('/users/me',  authenticate, (req, res) => {
     res.send(req.user)
 
-})
+});
+
+// POST / users / login {email, password}
+
+app.post('/users/login', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password'])
+
+    ////////////////// MA METHODE ////////////////
+    // var email = req.body.email
+    // var password = req.body.password
+
+    // User.findOne({email}).then((login) => {
+    //     if(!login ) {
+    //         return res.status(404).send('user not found or password didnt match')
+    //     }
+    //     return login.password
+    // }).then((dbpassword => {
+    //      return bcrypt.compare(password, dbpassword)
+    // })).then((passwordTrueOrFalse) => {
+    //     console.log(passwordTrueOrFalse)
+    //     if(!passwordTrueOrFalse) {
+    //         res.send('MAUVAIS PASSWORD')
+    //     }
+    //     res.status(200).send(body)
+    // }).catch((e) => {
+    //     res.status(400).send()
+    // });
+
+    ////////////// METHODE FACTORISE /////////////
+    User.findByCredentials(body.email, body.password).then((user)=> {
+        console.log(user)
+        return user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user)
+        })
+    }).catch((e) => {
+        res.status(400).send()
+    })
+});
 
 app.listen(`${PORT}`, () => {
     console.log(`Started on port ${PORT}`)
 });
 
+
 module.exports = {app};
+
+
+// var test = http.STATUS_CODES[404]
+// console.log(test)
+
+// var url = 'http://google.com'
+// var prot = url.substr(url.indexOf('/'))
+// console.log(prot)
+
+
+// var express = require('express')
+// var app = express()
+// var server = require('http').createServer(app)
+// server.listen(2222)
+// app.get('/:id(\\d+)', function(req, res) {
+//     var id = req.params.id
+//     res.status(200).end(`received parameter ${id}`)
+//     console.log(id)
+// })

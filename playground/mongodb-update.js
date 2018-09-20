@@ -19,7 +19,7 @@ MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
     }, {
         returnOriginal: false
     }).then((result) => {
-        console.log(result)
+        // console.log(result)
     })
 
     db.collection('Users').findOneAndUpdate({
@@ -34,8 +34,21 @@ MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
     }, {
         returnOriginal: false
     }).then((result) => {
-        console.log(JSON.stringify(result))
+        // console.log(JSON.stringify(result))
     }
     )
+
+    db
+    .collection('Users')
+    .updateMany({name: 'Teddy'}, {
+        $set: {
+        name: 'Jacques'
+    }, $inc: {
+        age: 1 
+    }
+    })
+    .then((result) => {
+        console.log( 'TEST', JSON.stringify(result))
+    })
     // db.close();
 })
